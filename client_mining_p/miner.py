@@ -1,5 +1,6 @@
 import hashlib
 import requests
+from time import time
 
 import sys
 import json
@@ -58,6 +59,9 @@ if __name__ == '__main__':
 
     # Run forever until interrupted
     while True:
+        # set up timer
+        start_time = time()
+
         r = requests.get(url=node + "/last_block")
         # Handle non-json response
         try:
@@ -89,6 +93,9 @@ if __name__ == '__main__':
         # print the message from the server.
         if data.get('message') == 'New Block Forged':
             coins_mined += 1
+            end_time = time()
+            time_took = end_time - start_time
+            print(f'Time taken to mine: {time_took} seconds')
             print(f'Coins mined so far: {coins_mined}')
         else:
             print(data.message)
