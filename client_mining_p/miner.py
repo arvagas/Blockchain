@@ -75,7 +75,13 @@ if __name__ == '__main__':
         post_data = {"proof": new_proof, "id": id}
 
         r = requests.post(url=node + "/mine", json=post_data)
-        data = r.json()
+
+        # https://requests.readthedocs.io/en/master/user/quickstart/#json-response-content
+        # https://stackoverflow.com/a/32330629
+        if r.json() is not ValueError:
+            data = r.json()
+        else:
+            print('Server sent something unexpected. Exiting application now...')
 
         # TODO: If the server responds with a 'message' 'New Block Forged'
         # add 1 to the number of coins mined and print it.  Otherwise,
