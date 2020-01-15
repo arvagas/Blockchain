@@ -130,17 +130,19 @@ def mine():
         return jsonify({ 'message': 'Id not found.' }), 400
 
     # proof validation
+    input_proof = data.get('proof')
     last_block = blockchain.last_block
     last_block_string = json.dumps(last_block, sort_keys=True)
 
-    if blockchain.valid_proof(last_block_string, data.proof):
+    if blockchain.valid_proof(last_block_string, input_proof):
         # create new block
         previous_hash = blockchain.hash(last_block)
-        block = blockchain.new_block(data.proof, previous_hash)
+        block = blockchain.new_block(input_proof, previous_hash)
 
         response = {
             # TODO: Send a JSON response with the new block
-            'new_block': block
+            'new_block': block,
+            'message':'New Block Forged'
         }
 
         return jsonify(response), 200
