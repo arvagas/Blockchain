@@ -32,14 +32,23 @@ class Blockchain(object):
 
         block = {
             # TODO
+            'index': len(self.chain) + 1,
+            'timestamp': time(),
+            'transactions': self.current_transactions,
+            'proof': proof,
+            'previous_hash': previous_hash,
+            # 'previous_hash': self.hash(self.chain)-1,
+            ##### ^ acceptable if previous hash was not part of argument
         }
 
         # Reset the current list of transactions
+        self.current_transactions = []
         # Append the chain to the block
+        self.chain.append(block)
         # Return the new block
-        pass
+        return block
 
-    def hash(block):
+    def hash(self, block):
         """
         Creates a SHA-256 hash of a Block
 
@@ -56,8 +65,16 @@ class Blockchain(object):
         # or we'll have inconsistent hashes
 
         # TODO: Create the block_string
+        ##### prior to 3.6/7, keys were not guaranteed to sort themselves
+        ##### .encode() converts to a byte string
+        string_object = json.dumps(block, sort_keys=True).encode()
 
         # TODO: Hash this string using sha256
+        raw_hash = hashlib.sha256(string_object)
+
+        ##### .hexdigest() formats to hexadecimal
+        ##### we want to convert to avoid ASCII/special characters
+        hex_hash = raw_hash.hexdigest()
 
         # By itself, the sha256 function returns the hash in a raw string
         # that will likely include escaped characters.
@@ -66,7 +83,7 @@ class Blockchain(object):
         # easier to work with and understand
 
         # TODO: Return the hashed block string in hexadecimal format
-        pass
+        return hex_hash
 
     @property
     def last_block(self):
@@ -128,10 +145,12 @@ def mine():
 def full_chain():
     response = {
         # TODO: Return the chain and its current length
+        'length': len(blockchain.chain),
+        'chain': blockchain.chain
     }
     return jsonify(response), 200
 
 
 # Run the program on port 5000
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
