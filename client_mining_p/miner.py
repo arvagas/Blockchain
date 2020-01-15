@@ -82,6 +82,7 @@ if __name__ == '__main__':
             data = r.json()
         else:
             print('Server sent something unexpected. Exiting application now...')
+            break
 
         # TODO: If the server responds with a 'message' 'New Block Forged'
         # add 1 to the number of coins mined and print it.  Otherwise,
