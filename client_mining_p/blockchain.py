@@ -128,6 +128,12 @@ def mine():
         return jsonify({ 'message': 'Proof not found.' }), 400
     elif 'id' not in data:
         return jsonify({ 'message': 'Id not found.' }), 400
+    ########## Class Solution ##########
+    # required = ['proof', 'data']
+    # if not all (k in data for k in required):
+    #     response = { 'message': 'Missing values' }
+    #     return jsonify(response), 400
+    ##########
 
     # proof validation
     input_proof = data.get('proof')
@@ -145,9 +151,15 @@ def mine():
             'message':'New Block Forged'
         }
 
-        return jsonify(response), 200
+        # return jsonify(response), 200
     else:
-        return jsonify({ 'message': 'Invalid proof' }), 400
+        response = {
+            'message': 'Invalid proof'
+        }
+        # return jsonify({ 'message': 'Invalid proof' }), 400
+    
+    # we return as such since both responses are technically 200
+    return jsonify(response), 200
 
 
 @app.route('/chain', methods=['GET'])
