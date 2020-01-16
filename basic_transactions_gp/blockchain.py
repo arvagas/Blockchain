@@ -107,6 +107,24 @@ class Blockchain(object):
         # TODO: Return True or False
         return guess_hash[:6] == '000000'
 
+    def new_transaction(self, sender, recipient, amount):
+        """
+        Creates a new transaction to go into the next mined block
+
+        :param sender: <str> Name of the sender
+        :param recipient: <str> Name of the recipient
+        :param amount: <float> amount of transaction
+        :return: <index> The index of the block that will hold the transaction
+        """
+
+        self.current_transactions.append({
+            'sender': sender,
+            'recipient': recipient,
+            'amount': amount
+        })
+
+        return self.last_block['index'] + 1
+
 
 # Instantiate our Node
 app = Flask(__name__)
@@ -116,6 +134,26 @@ node_identifier = str(uuid4()).replace('-', '')
 
 # Instantiate the Blockchain
 blockchain = Blockchain()
+
+@app.route('/transactions/new', methods=['POST'])
+def new_transaction():
+    data = request.get_json()
+
+    required = ['sender', 'recipient', 'amount']
+    if not all(k in data for k in required):
+        response = { 'message': 'Missing values' }
+        return jsonify(response), 400
+
+    # create new transaction
+    index = blockchain.new_transaction(data['sender'],
+                                       data['recipient'],
+                                       data['amount'])
+    
+    response = {
+        'message': f'Transation will post to block {index}.'
+    }
+
+    return jsonify(response), 201
 
 
 @app.route('/mine', methods=['POST'])
@@ -145,18 +183,21 @@ def mine():
         previous_hash = blockchain.hash(last_block)
         block = blockchain.new_block(input_proof, previous_hash)
 
+        blockchain.new_transaction(
+            sender='0',
+            recipient=data['id'],
+            amount=100
+        )
+
         response = {
             # TODO: Send a JSON response with the new block
             'new_block': block,
             'message':'New Block Forged'
         }
-
-        # return jsonify(response), 200
     else:
         response = {
-            'message': 'Invalid proof'
+            'message': 'Proof is invalid or already submitted.'
         }
-        # return jsonify({ 'message': 'Invalid proof' }), 400
     
     # we return as such since both responses are technically 200
     return jsonify(response), 200
